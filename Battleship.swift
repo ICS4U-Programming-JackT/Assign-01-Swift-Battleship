@@ -6,7 +6,6 @@ import Foundation
  
  Not taught:
  Arrays (1D & 2D): https://docs.swift.org/swift-book/documentation/the-swift-programming-language/arrays/
- Random number generation (Int.random): https://developer.apple.com/documentation/swift/int/random(in:)
  ANSI escape color codes (for colored output): https://en.wikipedia.org/wiki/ANSI_escape_code
  */
 
@@ -167,6 +166,7 @@ func mainGame() {
         
         // Player fires
         let (row, col) = handleInput()
+        // Target: &enemyGrid, View: &playerViewOfEnemy (Correct usage)
         gameOver = handleAttacks(targetGrid: &enemyGrid, viewGrid: &playerViewOfEnemy, row: row, col: col)
         
         if gameOver {
@@ -179,7 +179,13 @@ func mainGame() {
         let compCol = Int.random(in: 0..<4)
         print("Enemy fires at (\(compRow + 1), \(compCol + 1))")
         
-        gameOver = handleAttacks(targetGrid: &playerGrid, viewGrid: &playerGrid, row: compRow, col: compCol)
+        // FIX: Create a temporary dummy copy of playerGrid for the 'viewGrid' argument
+        // This avoids passing the same variable twice as 'inout'.
+        var dummyView = playerGrid
+        gameOver = handleAttacks(targetGrid: &playerGrid, viewGrid: &dummyView, row: compRow, col: compCol)
+        
+        // Note: The playerGrid is correctly updated via 'targetGrid: &playerGrid'
+        // The 'dummyView' copy is immediately discarded after the function call.
         
         if gameOver {
             print(RED + "The enemy has sunk all your ships. Game over!" + RESET)
