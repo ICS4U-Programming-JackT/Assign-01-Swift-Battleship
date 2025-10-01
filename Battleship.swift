@@ -50,7 +50,7 @@ func setupGrid(size: Int, ships: Int) -> [[String]] {
 }
 
 /**
- Displays a grid in the console, with optional ship hiding for enemy boards.
+ Displays a grid in the console.
  */
 func displayGrid(_ grid: [[String]], showShips: Bool) {
     for row in grid {
@@ -84,6 +84,9 @@ func handleInput() -> (Int, Int) {
     var col = -1
     var valid = false
     
+    // Get user input repeatedly until its valid.
+    // Finally with valid coordinates, valid is
+    // set to true and the row + col are returned.
     while !valid {
         print("Enter row (1-4): ", terminator: "")
         if let rowStr = readLine(), let rowInt = Int(rowStr) {
@@ -109,6 +112,11 @@ func handleInput() -> (Int, Int) {
  Updates both the target grid and the view grid.
  
  Returns true if all ships on the target grid have been sunk.
+
+ We use inout for passing by reference so that the arrays
+ are changed in the scope of the function call.
+
+ -> defines the return value datatype.
  */
 func handleAttacks(targetGrid: inout [[String]], viewGrid: inout [[String]], row: Int, col: Int) -> Bool {
     if targetGrid[row][col] == SHIP {
@@ -133,7 +141,6 @@ func handleAttacks(targetGrid: inout [[String]], viewGrid: inout [[String]], row
 }
 
 // Main Game Loop
-
 func mainGame() {
     print("Welcome to Battleship!")
     print("Would you like to see the tutorial? (y/n): ", terminator: "")
@@ -152,7 +159,7 @@ func mainGame() {
     var playerGrid = setupGrid(size: 4, ships: 4)
     var enemyGrid = setupGrid(size: 4, ships: 4)
     
-    // Player’s view of enemy board (starts all empty)
+    // Players view of enemy board (starts all empty)
     var playerViewOfEnemy = Array(repeating: Array(repeating: EMPTY, count: 4), count: 4)
     
     var gameOver = false
@@ -166,7 +173,8 @@ func mainGame() {
         
         // Player fires
         let (row, col) = handleInput()
-        // Target: &enemyGrid, View: &playerViewOfEnemy (Correct usage)
+
+        // We use & to pass by reference
         gameOver = handleAttacks(targetGrid: &enemyGrid, viewGrid: &playerViewOfEnemy, row: row, col: col)
         
         if gameOver {
@@ -179,13 +187,13 @@ func mainGame() {
         let compCol = Int.random(in: 0..<4)
         print("Enemy fires at (\(compRow + 1), \(compCol + 1))")
         
-        // FIX: Create a temporary dummy copy of playerGrid for the 'viewGrid' argument
-        // This avoids passing the same variable twice as 'inout'.
+        // Using a dummy view avoids passing the same variable
+        // twice as 'inout' which causes a linter error.
         var dummyView = playerGrid
         gameOver = handleAttacks(targetGrid: &playerGrid, viewGrid: &dummyView, row: compRow, col: compCol)
         
-        // Note: The playerGrid is correctly updated via 'targetGrid: &playerGrid'
-        // The 'dummyView' copy is immediately discarded after the function call.
+        // The dummyView copy is immediately discarded
+        // after the function call as it isn't useful anymore.
         
         if gameOver {
             print(RED + "The enemy has sunk all your ships. Game over!" + RESET)
