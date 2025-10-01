@@ -188,7 +188,7 @@ func mainGame() {
         print("Enemy fires at (\(compRow + 1), \(compCol + 1))")
         
         // Using a dummy view avoids passing the same variable
-        // twice as 'inout' which causes a linter error.
+        // twice as 'inout' which causes an error.
         var dummyView = playerGrid
         gameOver = handleAttacks(targetGrid: &playerGrid, viewGrid: &dummyView, row: compRow, col: compCol)
         
